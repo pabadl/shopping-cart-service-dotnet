@@ -2,7 +2,7 @@
 
 ## Problem description
 
-Create the application shopping-cart using Spring Boot. Through a Rest API, the system should be able to manage the shopping cart. That means that we can add and remove items to and from shopping carts as well as getting the state of it. The idea is that the candidate develops an application that manages the cart using coding best practices for rest services in a multi-layered architecture. This is an example of the shopping cart rendered through a UI (UI is out of scope).
+Create the application shopping-cart using .net. Through a Rest API, the system should be able to manage the shopping cart. That means that we can add and remove items to and from shopping carts as well as getting the state of it. The idea is that the candidate develops an application that manages the cart using coding best practices for rest services in a multi-layered architecture. This is an example of the shopping cart rendered through a UI (UI is out of scope).
 
 Quantity |  Product   | Unit Price | Subtotal |
 |:--------:|:----------:|:----------:|:--------:|
@@ -27,24 +27,59 @@ The application should:
 
 ## Project structure
 
-To be defined
+The solution follows Clean Architecture, with one project per layer so that the
+compiler enforces the dependency rule (dependencies always point inward, toward
+the domain).
+
 ```text
 .
 ├── docker-compose.yml                  # Local PostgreSQL service
 ├── README.md                           # Project documentation
-├── To be defined
+├── ShoppingCart.slnx                   # Solution file (groups all projects)
+└── src/
+    ├── ShoppingCart.Domain/            # Core business model (no dependencies)
+    │   ├── Entities/                   # Domain objects with guarded invariants
+    │   ├── Exceptions/                 # Domain-specific exceptions
+    │   └── Services/                   # Business rules and domain service interfaces
+    │
+    ├── ShoppingCart.Application/       # Application use cases and orchestration
+    │   └── UseCases/                   # Business workflows (one folder per entity)
+    │
+    ├── ShoppingCart.Infrastructure/    # Framework and persistence concerns
+    │   ├── Entities/                   # EF Core entities mapped to DB tables
+    │   ├── Mappers/                    # Mappers between domain and EF Core entities
+    │   ├── Migrations/                 # EF Core database migrations
+    │   ├── Persistence/                # DbContext configuration
+    │   └── Services/                   # Database service implementations
+    │
+    ├── ShoppingCart.InterfaceAdapters/ # API contract and layer-to-layer adapters
+    │   ├── Dtos/                       # Request/response payloads
+    │   └── Mappers/                    # DTO-to-domain mappers
+    │
+    └── ShoppingCart.Api/               # Web host (executable entry point)
+        ├── Controllers/                # REST controllers
+        └── Program.cs                  # Startup, DI registration, middleware pipeline
+```
+
+Dependency direction between projects:
+
+```text
+Api ──> InterfaceAdapters ──> Application ──> Domain
+ │                                             ▲
+ └──────> Infrastructure ─────────────────────┘
 ```
 
 This structure follows a layered approach:
 
-- `application` coordinates use cases and application flows.
-- `domain` contains the business model and business rules.
-- `infrastructure` handles persistence, security, and framework-specific code.
-- `interfaceadapters` exposes the API and transforms incoming/outgoing data.
+- `Application` coordinates use cases and application flows.
+- `Domain` contains the business model and business rules.
+- `Infrastructure` handles persistence, security, and framework-specific code.
+- `InterfaceAdapters` exposes the API and transforms incoming/outgoing data.
 
 ## Requirements
 
-- To be defined according to .net and ASP.NET
+- .NET SDK 10.0+
+- ASP.NET Core runtime (included with the .NET SDK)
 - Docker + Docker Compose
 
 ## Run PostgreSQL with Docker
@@ -83,17 +118,19 @@ docker compose up -d
 ## Compile the project
 
 ```bash
-to be defined
+dotnet build
 ```
 
 ## Run the application
 
 ```bash
-to be defined
+dotnet run --project src/ShoppingCart.Api
+dotnet watch --project src/ShoppingCart.Api // Watch mode
 ```
 
-The app starts on http://localhost:5220 by default.
+The app starts on http://localhost:5101 by default.
 
-## Swagger
+## Scalar - UI API Documentation
 
-to be defined
+http://localhost:5101/scalar/v1
+
