@@ -1,9 +1,12 @@
 using ShoppingCart.Application.UseCases.Products;
+using ShoppingCart.Application.UseCases.PaymentMethods;
 using Scalar.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using ShoppingCart.Infrastructure.Persistence;
 using ShoppingCart.Domain.Services.Products;
+using ShoppingCart.Domain.Services.PaymentMethods;
 using ShoppingCart.Infrastructure.Services.Products;
+using ShoppingCart.Infrastructure.Services.PaymentMethods;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,9 +17,16 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<GetAllProductsUseCase>();
 builder.Services.AddScoped<CreateProductUseCase>(); 
 
-// Registrar servicios de dominio e infraestructura
+// Registrar servicios de dominio e infraestructura - Product
 builder.Services.AddScoped<IProductDomainService, ProductDomainServiceImpl>();
 builder.Services.AddScoped<IProductDbService, ProductDbServiceImpl>();
+
+// Registrar casos de uso - PaymentMethod
+builder.Services.AddScoped<GetAllPaymentMethodsUseCase>();
+
+// Registrar servicios de dominio e infraestructura - PaymentMethod
+builder.Services.AddScoped<IPaymentMethodDomainService, PaymentMethodDomainServiceImpl>();
+builder.Services.AddScoped<IPaymentMethodDbService, PaymentMethodDbServiceImpl>();
 
 // Registrar el DbContext con PostgreSQL
 builder.Services.AddDbContext<ShoppingCartDbContext>(options =>
